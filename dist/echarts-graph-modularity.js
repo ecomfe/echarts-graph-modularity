@@ -91,6 +91,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var comm = result[id];
 	                graph.data.setItemVisual(idIndexMap[id], 'color', seriesModel.getColorFromPalette(comm, paletteScope));
 	            }
+
+	            graph.edgeData.each(function (idx) {
+	                var itemModel = graph.edgeData.getItemModel(idx);
+	                var edge = graph.getEdgeByIndex(idx);
+	                var color = itemModel.get('lineStyle.normal.color');
+
+	                switch (color) {
+	                    case 'source':
+	                        color = edge.node1.getVisual('color');
+	                        break;
+	                    case 'target':
+	                        color = edge.node2.getVisual('color');
+	                        break;
+	                }
+
+	                if (color != null) {
+	                    edge.setVisual('color', color);
+	                }
+	            });
 	        }
 	    });
 	});

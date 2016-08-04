@@ -65,7 +65,7 @@
                     width: '50%',
                     bottom: 0
                 }, {
-                    name: 'Without Modularity',
+                    name: 'With Modularity',
                     type: 'graph',
                     layout: 'force',
                     modularity: true,
@@ -75,7 +75,12 @@
                     left: '50%',
                     top: 0,
                     width: '50%',
-                    bottom: 0
+                    bottom: 0,
+                    lineStyle: {
+                        normal: {
+                            color: 'source'
+                        }
+                    }
                 }]
             };
 
