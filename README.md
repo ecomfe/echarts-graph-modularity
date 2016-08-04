@@ -36,7 +36,8 @@ setOption({
     series: [{
         type: 'graph',
         layout: 'force',
-        // Set modularity property true and extension will automatically detect different communities and assign each different color.
+        // Set modularity property true and extension will automatically detect different communities
+        // and assign each different color.
         modularity: true
 
         ...
