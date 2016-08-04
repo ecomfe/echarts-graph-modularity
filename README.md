@@ -4,7 +4,7 @@
     <img style="vertical-align: top;" src="https://github.com/ecomfe/echarts/raw/master/asset/logo.png?raw=true" alt="logo" height="50px">
 </a>
 
-Graph modularity extension will do community detection and partian a graph's vertices in several subsets. For each subset then assign a different color.
+Graph modularity extension will do community detection and partian a graph's vertices in several subsets. Each subset will be assigned a different color.
 
 ![](./example/modularity.png)
 
