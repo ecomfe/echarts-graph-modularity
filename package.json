@@ -1,6 +1,6 @@
 {
   "name": "echarts-graph-modularity",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "ECharts graph modularity extension for community detection",
   "main": "index.js",
   "author": "",
