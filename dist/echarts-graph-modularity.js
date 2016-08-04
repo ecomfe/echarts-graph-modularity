@@ -69,8 +69,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var modularityOpt = seriesModel.get('modularity');
 	        if (modularityOpt) {
 	            var graph = seriesModel.getGraph();
+	            var idIndexMap = {};
 	            var nodeDataArr = graph.data.mapArray(function (idx) {
 	                var node = graph.getNodeByIndex(idx);
+	                idIndexMap[node.id] = idx;
 	                return node.id;
 	            });
 	            var edgeDataArr = graph.edgeData.mapArray('value', function (val, idx) {
@@ -87,7 +89,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            for (var id in result) {
 	                var comm = result[id];
-	                graph.data.setItemVisual(+id, 'color', seriesModel.getColorFromPalette(comm, paletteScope));
+	                graph.data.setItemVisual(idIndexMap[id], 'color', seriesModel.getColorFromPalette(comm, paletteScope));
 	            }
 	        }
 	    });
