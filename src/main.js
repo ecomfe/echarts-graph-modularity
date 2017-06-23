@@ -29,7 +29,6 @@ function createModularityVisual(chartType) {
 
                 var modularity = new Modularity(seriesModel.get('modularity.resolution') || 1);
                 var result = modularity.execute(ng);
-                console.log(result);
 
                 for (var id in result) {
                     var comm = result[id];
