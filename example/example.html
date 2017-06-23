@@ -68,7 +68,9 @@
                     name: 'With Modularity',
                     type: 'graph',
                     layout: 'force',
-                    modularity: true,
+                    modularity: {
+                        resolution: 10
+                    },
                     itemStyle: itemStyle,
                     data: nodeData,
                     edges: edgeData,

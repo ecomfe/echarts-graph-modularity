@@ -1,4 +1,4 @@
-# [ECharts](https://github.com/ecomfe/echarts) graph modularity extension based on [jLouvain](https://github.com/upphiminn/jLouvain)
+# [ECharts](https://github.com/ecomfe/echarts) graph modularity extension
 
 <a href="http://echarts.baidu.com">
     <img style="vertical-align: top;" src="https://github.com/ecomfe/echarts/raw/master/asset/logo.png?raw=true" alt="logo" height="50px">
@@ -39,6 +39,11 @@ setOption({
         // Set modularity property true and extension will automatically detect different communities
         // and assign each different color.
         modularity: true
+
+        // Specify resolution. Higher resolution will produce less communities
+        modularity: {
+            resolution: 5
+        }
 
         ...
     }]

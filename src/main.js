@@ -1,5 +1,6 @@
-var modularity = require('./modularity');
+var Modularity = require('ngraph.modularity/Modularity');
 var echarts = require('echarts/lib/echarts');
+var createNGraph = require('ngraph.graph');
 
 function createModularityVisual(chartType) {
     return function (ecModel, api) {
@@ -9,13 +10,16 @@ function createModularityVisual(chartType) {
             if (modularityOpt) {
                 var graph = seriesModel.getGraph();
                 var idIndexMap = {};
-                var nodeDataArr = graph.data.mapArray(function (idx) {
+                var ng = createNGraph();
+                graph.data.each(function (idx) {
                     var node = graph.getNodeByIndex(idx);
                     idIndexMap[node.id] = idx;
+                    ng.addNode(node.id);
                     return node.id;
                 });
-                var edgeDataArr = graph.edgeData.mapArray('value', function (val, idx) {
+                graph.edgeData.each('value', function (val, idx) {
                     var edge = graph.getEdgeByIndex(idx);
+                    ng.addLink(edge.node1.id, edge.node2.id);
                     return {
                         source: edge.node1.id,
                         target: edge.node2.id,
@@ -23,8 +27,9 @@ function createModularityVisual(chartType) {
                     };
                 });
 
-                var community = modularity().nodes(nodeDataArr).edges(edgeDataArr).partition_init();
-                var result = community();
+                var modularity = new Modularity(seriesModel.get('modularity.resolution') || 1);
+                var result = modularity.execute(ng);
+                console.log(result);
 
                 for (var id in result) {
                     var comm = result[id];
