@@ -42,7 +42,9 @@ setOption({
 
         // Specify resolution. Higher resolution will produce less communities
         modularity: {
-            resolution: 5
+            resolution: 5,
+            // If sort the communities
+            sort: false
         }
 
         ...
