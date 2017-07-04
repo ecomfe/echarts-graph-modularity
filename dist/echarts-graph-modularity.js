@@ -114,11 +114,27 @@ function createModularityVisual(chartType) {
 
                 var modularity = new Modularity(seriesModel.get('modularity.resolution') || 1);
                 var result = modularity.execute(ng);
-                console.log(result);
+
+                var communities = {};
+                for (var id in result) {
+                    var comm = result[id];
+                    communities[comm] = communities[comm] || 0;
+                    communities[comm]++;
+                }
+                var communitiesList = Object.keys(communities);
+                if (seriesModel.get('modularity.sort')) {
+                    communitiesList.sort(function (a, b) {
+                        return b - a;
+                    });
+                }
+                var colors = {};
+                communitiesList.forEach(function (comm) {
+                    colors[comm] = seriesModel.getColorFromPalette(comm, paletteScope);
+                });
 
                 for (var id in result) {
                     var comm = result[id];
-                    graph.data.setItemVisual(idIndexMap[id], 'color', seriesModel.getColorFromPalette(comm, paletteScope));
+                    graph.data.setItemVisual(idIndexMap[id], 'color', colors[comm]);
                 }
 
                 graph.edgeData.each(function (idx) {
