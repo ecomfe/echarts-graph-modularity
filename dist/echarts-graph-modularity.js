@@ -7,1028 +7,37 @@
 		exports["echarts-graph-modularity"] = factory(require("echarts"));
 	else
 		root["echarts-graph-modularity"] = factory(root["echarts"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_9__) {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports, __webpack_require__) {
+})(self, function(__WEBPACK_EXTERNAL_MODULE_echarts_lib_echarts__) {
+return /******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
 
-module.exports = __webpack_require__(1);
+/***/ "./index.js":
+/*!******************!*\
+  !*** ./index.js ***!
+  \******************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = __webpack_require__(/*! ./src/main */ "./src/main.js");
 
 /***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
 
-var Modularity = __webpack_require__(2);
-var echarts = __webpack_require__(9);
-var createNGraph = __webpack_require__(10);
-
-function createModularityVisual(chartType) {
-    return function (ecModel, api) {
-        var paletteScope = {};
-        ecModel.eachSeriesByType(chartType, function (seriesModel) {
-            var modularityOpt = seriesModel.get('modularity');
-            if (modularityOpt) {
-                var graph = seriesModel.getGraph();
-                var idIndexMap = {};
-                var ng = createNGraph();
-                graph.data.each(function (idx) {
-                    var node = graph.getNodeByIndex(idx);
-                    idIndexMap[node.id] = idx;
-                    ng.addNode(node.id);
-                    return node.id;
-                });
-                graph.edgeData.each('value', function (val, idx) {
-                    var edge = graph.getEdgeByIndex(idx);
-                    ng.addLink(edge.node1.id, edge.node2.id);
-                    return {
-                        source: edge.node1.id,
-                        target: edge.node2.id,
-                        value: val
-                    };
-                });
-
-                var modularity = new Modularity(seriesModel.get('modularity.resolution') || 1);
-                var result = modularity.execute(ng);
-
-                var communities = {};
-                for (var id in result) {
-                    var comm = result[id];
-                    communities[comm] = communities[comm] || 0;
-                    communities[comm]++;
-                }
-                var communitiesList = Object.keys(communities);
-                if (seriesModel.get('modularity.sort')) {
-                    communitiesList.sort(function (a, b) {
-                        return b - a;
-                    });
-                }
-                var colors = {};
-                communitiesList.forEach(function (comm) {
-                    colors[comm] = seriesModel.getColorFromPalette(comm, paletteScope);
-                });
-
-                for (var id in result) {
-                    var comm = result[id];
-                    graph.data.setItemVisual(idIndexMap[id], 'color', colors[comm]);
-                }
-
-                graph.edgeData.each(function (idx) {
-                    var itemModel = graph.edgeData.getItemModel(idx);
-                    var edge = graph.getEdgeByIndex(idx);
-                    var color = itemModel.get('lineStyle.normal.color');
-
-                    switch (color) {
-                        case 'source':
-                            color = edge.node1.getVisual('color');
-                            break;
-                        case 'target':
-                            color = edge.node2.getVisual('color');
-                            break;
-                    }
-
-                    if (color != null) {
-                        edge.setVisual('color', color);
-                    }
-                });
-            }
-        });
-    };
-}
-
-echarts.registerVisual(echarts.PRIORITY.VISUAL.CHART + 1, createModularityVisual('graph'));
-echarts.registerVisual(echarts.PRIORITY.VISUAL.CHART + 1, createModularityVisual('graphGL'));
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
- Copyright 2008-2011 Gephi
- Authors : Patick J. McSweeney <pjmcswee@syr.edu>, Sebastien Heymann <seb@gephi.org>
- Website : http://www.gephi.org
-
- This file is part of Gephi.
-
- DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
-
- Copyright 2011 Gephi Consortium. All rights reserved.
-
- The contents of this file are subject to the terms of either the GNU
- General Public License Version 3 only ("GPL") or the Common
- Development and Distribution License("CDDL") (collectively, the
- "License"). You may not use this file except in compliance with the
- License. You can obtain a copy of the License at
- http://gephi.org/about/legal/license-notice/
- or /cddl-1.0.txt and /gpl-3.0.txt. See the License for the
- specific language governing permissions and limitations under the
- License.  When distributing the software, include this License Header
- Notice in each file and include the License files at
- /cddl-1.0.txt and /gpl-3.0.txt. If applicable, add the following below the
- License Header, with the fields enclosed by brackets [] replaced by
- your own identifying information:
- "Portions Copyrighted [year] [name of copyright owner]"
-
- If you wish your version of this file to be governed by only the CDDL
- or only the GPL Version 3, indicate your decision by adding
- "[Contributor] elects to include this software in this distribution
- under the [CDDL or GPL Version 3] license." If you do not indicate a
- single choice of license, a recipient has the option to distribute
- your version of this file under either the CDDL, the GPL Version 3 or
- to extend the choice of license to its licensees as provided above.
- However, if you add GPL Version 3 code and therefore, elected the GPL
- Version 3 license, then the option applies only if the new code is
- made subject to such option by the copyright holder.
-
- Contributor(s): Thomas Aynaud <taynaud@gmail.com>
-
- Portions Copyrighted 2011 Gephi Consortium.
- */
-var CommunityStructure = __webpack_require__(3)
-    , centrality = __webpack_require__(6)
-    ;
-
-/**
- * @constructor
- */
-function Modularity (resolution, useWeight) {
-    this.isRandomized = false;
-    this.useWeight = useWeight;
-    this.resolution = resolution || 1.;
-    /**
-     * @type {CommunityStructure}
-     */
-    this.structure = null;
-}
-
-/**
- * @param {IGraph} graph
- */
-Modularity.prototype.execute = function (graph/*, AttributeModel attributeModel*/) {
-
-
-    this.structure = new CommunityStructure(graph, this.useWeight);
-
-    var comStructure = new Array(graph.getNodesCount());
-
-    var computedModularityMetrics = this.computeModularity(
-        graph
-        , this.structure
-        , comStructure
-        , this.resolution
-        , this.isRandomized
-        , this.useWeight
-    );
-
-    var result = {};
-    this.structure.map.forEach(function (i, node) {
-        result[node] = comStructure[i];
-    });
-
-    return result;
-
-};
-
-
-/**
- *
- * @param {IGraph} graph
- * @param {CommunityStructure} theStructure
- * @param {Array.<Number>} comStructure
- * @param {Number} currentResolution
- * @param {Boolean} randomized
- * @param {Boolean} weighted
- * @returns {Object.<String, Number>}
- */
-Modularity.prototype.computeModularity = function(graph, theStructure, comStructure,  currentResolution, randomized, weighted) {
-
-
-    function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min)) + min;
-    }
-
-    var totalWeight = theStructure.graphWeightSum;
-    var nodeDegrees = theStructure.weights.slice();
-
-
-    var /** @type {Object.<String, Number>} */ results = Object.create(null);
-
-
-    var someChange = true;
-
-    while (someChange) {
-        someChange = false;
-        var localChange = true;
-        while (localChange) {
-            localChange = false;
-            var start = 0;
-            if (randomized) {
-                //start = Math.abs(rand.nextInt()) % theStructure.N;
-                start = getRandomInt(0,theStructure.N);
-            }
-            var step = 0;
-            for (var i = start; step < theStructure.N; i = (i + 1) % theStructure.N) {
-                step++;
-                var bestCommunity = this.updateBestCommunity(theStructure, i, currentResolution);
-                if ((theStructure.nodeCommunities[i] != bestCommunity) && (bestCommunity != null)) {
-                    theStructure.moveNodeTo(i, bestCommunity);
-                    localChange = true;
-                }
-
-            }
-
-            someChange = localChange || someChange;
-
-        }
-
-        if (someChange) {
-            theStructure.zoomOut();
-        }
-    }
-
-    this.fillComStructure(graph, theStructure, comStructure);
-
-    /*
-    //TODO: uncomment when finalQ will be implemented
-    var degreeCount = this.fillDegreeCount(graph, theStructure, comStructure, nodeDegrees, weighted);
-
-
-    var computedModularity = this._finalQ(comStructure, degreeCount, graph, theStructure, totalWeight, 1., weighted);
-    var computedModularityResolution = this._finalQ(comStructure, degreeCount, graph, theStructure, totalWeight, currentResolution, weighted);
-
-    results["modularity"] =  computedModularity;
-    results["modularityResolution"] =  computedModularityResolution;
-    */
-
-    return results;
-};
-
-
-/**
- * @param {CommunityStructure} theStructure
- * @param {Number} i
- * @param {Number} currentResolution
- * @returns {Community}
- */
-Modularity.prototype.updateBestCommunity = function(theStructure,  i, currentResolution) {
-    var best = this.q(i, theStructure.nodeCommunities[i], theStructure, currentResolution);
-    var bestCommunity = theStructure.nodeCommunities[i];
-    //var /*Set<Community>*/ iter = theStructure.nodeConnectionsWeight[i].keySet();
-    theStructure.nodeConnectionsWeight[i].forEach(function (_$$val, com) {
-
-        var qValue = this.q(i, com, theStructure, currentResolution);
-        if (qValue > best) {
-            best = qValue;
-            bestCommunity = com;
-        }
-
-    }, this);
-    return bestCommunity;
-};
-
-/**
- *
- * @param {IGraph} graph
- * @param {CommunityStructure} theStructure
- * @param {Array.<Number>} comStructure
- * @returns {Array.<Number>}
- */
-Modularity.prototype.fillComStructure = function(graph, theStructure, comStructure) {
-
-    var count = 0;
-
-    theStructure.communities.forEach(function (com) {
-
-        com.nodes.forEach(function (node) {
-
-            var hidden = theStructure.invMap.get(node);
-            hidden.nodes.forEach( function (nodeInt){
-                comStructure[nodeInt] = count;
-            });
-
-        });
-        count++;
-
-    });
-
-
-    return comStructure;
-};
-
-/**
- * @param {IGraph} graph
- * @param {CommunityStructure} theStructure
- * @param {Array.<Number>} comStructure
- * @param {Array.<Number>} nodeDegrees
- * @param {Boolean} weighted
- * @returns {Array.<Number>}
- */
-Modularity.prototype.fillDegreeCount = function(graph, theStructure, comStructure, nodeDegrees, weighted) {
-
-    var degreeCount = new Array(theStructure.communities.length);
-    var degreeCentrality = centrality.degree(graph);
-
-    graph.forEachNode(function(node){
-
-        var index = theStructure.map.get(node);
-        if (weighted) {
-            degreeCount[comStructure[index]] += nodeDegrees[index];
-        } else {
-            degreeCount[comStructure[index]] += degreeCentrality[node.id];
-        }
-
-    });
-    return degreeCount;
-
-};
-
-
-/**
- *
- * @param {Array.<Number>} struct
- * @param {Array.<Number>} degrees
- * @param {IGraph} graph
- * @param {CommunityStructure} theStructure
- * @param {Number} totalWeight
- * @param {Number} usedResolution
- * @param {Boolean} weighted
- * @returns {Number}
- */
-Modularity.prototype._finalQ = function(struct, degrees, graph, theStructure, totalWeight, usedResolution, weighted) {
-
-    //TODO: rewrite for wighted version of algorithm
-    throw new Error("not implemented properly");
-    var  res = 0;
-    var  internal = new Array(degrees.length);
-
-    graph.forEachNode(function(n){
-        var n_index = theStructure.map.get(n);
-
-        graph.forEachLinkedNode(n.id, function(neighbor){
-            if (n == neighbor) {
-                return;
-            }
-            var neigh_index = theStructure.map.get(neighbor);
-            if (struct[neigh_index] == struct[n_index]) {
-                if (weighted) {
-                    //throw new Error("weighted aren't implemented");
-                    //internal[struct[neigh_index]] += graph.getEdge(n, neighbor).getWeight();
-                } else {
-                    internal[struct[neigh_index]]++;
-                }
-            }
-        }.bind(this), false);
-
-    }.bind(this));
-
-    for (var i = 0; i < degrees.length; i++) {
-        internal[i] /= 2.0;
-        res += usedResolution * (internal[i] / totalWeight) - Math.pow(degrees[i] / (2 * totalWeight), 2);//HERE
-    }
-    return res;
-};
-
-
-
-/**
- *
- * @param {Number} nodeId
- * @param {Community} community
- * @param {CommunityStructure} theStructure
- * @param {Number} currentResolution
- * @returns {Number}
- */
-Modularity.prototype.q = function(nodeId, community, theStructure, currentResolution) {
-
-    var edgesToFloat = theStructure.nodeConnectionsWeight[nodeId].get(community);
-    var edgesTo = 0;
-    if (edgesToFloat != null) {
-        edgesTo = edgesToFloat;
-    }
-    var weightSum = community.weightSum;
-    var nodeWeight = theStructure.weights[nodeId];
-    var qValue = currentResolution * edgesTo - (nodeWeight * weightSum) / (2.0 * theStructure.graphWeightSum);
-    if ((theStructure.nodeCommunities[nodeId] == community) && (theStructure.nodeCommunities[nodeId].size() > 1)) {
-        qValue = currentResolution * edgesTo - (nodeWeight * (weightSum - nodeWeight)) / (2.0 * theStructure.graphWeightSum);
-    }
-    if ((theStructure.nodeCommunities[nodeId] == community) && (theStructure.nodeCommunities[nodeId].size() == 1)) {
-        qValue = 0.;
-    }
-    return qValue;
-
-};
-
-module.exports = Modularity;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var Community = __webpack_require__(4)
-    , ModEdge = __webpack_require__(5)
-    ;
-
-/**
- *
- * @param {IGraph} graph
- * @param useWeight
- * @param {CommunityStructure} structure
- * @constructor
- */
-function CommunityStructure(graph, useWeight) {
-
-    //this.graph = graph;
-    this.N = graph.getNodesCount();
-    this.graphWeightSum = 0;
-    this.structure = this;
-
-    /** @type {Map.<Number, Community>} */
-    this.invMap = new Map();
-
-    /** @type {Array.< Map.<Community, Number> >} */
-    this.nodeConnectionsWeight = new Array(this.N);
-
-    /** @type {Array.< Map.<Community, Number> >} */
-    this.nodeConnectionsCount = new Array(this.N);
-
-    /** @type {Array.<Community>} */
-    this.nodeCommunities = new Array(this.N);
-
-    /** @type {Map.<Node, Number>} */
-    this.map = new Map();
-
-    /** @type {Array.< Array.<ModEdge> >} */
-    this.topology = new Array(this.N);
-    for (var i = 0; i < this.N; i++) this.topology[i] = [];
-
-    /** @type {Array.<Community>} */
-    this.communities = [];
-
-    /**@type {Array.<Number>} */
-    this.weights = new Array(this.N);
-
-    var index = 0;
-
-    graph.forEachNode(function (node) {
-
-        this.map.set(node.id, index);
-        this.nodeCommunities[index] = new Community(this);
-        this.nodeConnectionsWeight[index] = new Map();
-        this.nodeConnectionsCount[index] = new Map();
-        this.weights[index] = 0;
-        this.nodeCommunities[index].seed(index);
-        var hidden = new Community(this);
-        hidden.nodes.add(index);
-        this.invMap.set(index, hidden);
-        this.communities.push(this.nodeCommunities[index]);
-        index++;
-
-    }.bind(this));
-
-
-    graph.forEachLink(function (link) {
-
-        var node_index = this.map.get(link.fromId)
-            , neighbor_index = this.map.get(link.toId)
-            , weight = 1
-            ;
-
-        if (node_index === neighbor_index) {
-            return;
-        }
-
-        if (useWeight) {
-            weight = link.data.weight;
-        }
-
-        this.setUpLink(node_index, neighbor_index, weight);
-        this.setUpLink(neighbor_index, node_index, weight);
-
-
-    }.bind(this));
-
-
-    this.graphWeightSum /= 2.0;
-}
-
-
-CommunityStructure.prototype.setUpLink = function (node_index, neighbor_index, weight) {
-
-    this.weights[node_index] += weight;
-    var /** @type {ModEdge} */ me = new ModEdge(node_index, neighbor_index, weight);
-    this.topology[node_index].push(me);
-    var /** @type {Community} **/ adjCom = this.nodeCommunities[neighbor_index];
-    this.nodeConnectionsWeight[node_index].set(adjCom, weight);
-    this.nodeConnectionsCount[node_index].set(adjCom, 1);
-    this.nodeCommunities[node_index].connectionsWeight.set(adjCom, weight);
-    this.nodeCommunities[node_index].connectionsCount.set(adjCom, 1);
-    this.nodeConnectionsWeight[neighbor_index].set(this.nodeCommunities[node_index], weight);
-    this.nodeConnectionsCount[neighbor_index].set(this.nodeCommunities[node_index], 1);
-    this.nodeCommunities[neighbor_index].connectionsWeight.set(this.nodeCommunities[node_index], weight);
-    this.nodeCommunities[neighbor_index].connectionsCount.set(this.nodeCommunities[node_index], 1);
-    this.graphWeightSum += weight;
-
-};
-
-/**
- * @param {Number} node
- * @param {Community} to
- */
-CommunityStructure.prototype.addNodeTo = function (node, to) {
-
-    to.add(node);
-    this.nodeCommunities[node] = to;
-
-    var nodeTopology = this.topology[node];
-    for (var topologyKey in nodeTopology) {
-
-        //noinspection JSUnfilteredForInLoop
-        var /** @type {ModEdge} */ e = nodeTopology[topologyKey];
-
-        var neighbor = e.target;
-
-
-        //Remove Node Connection to this community
-        var neighEdgesTo = this.nodeConnectionsWeight[neighbor].get(to);
-        if (neighEdgesTo === undefined) {
-            this.nodeConnectionsWeight[neighbor].set(to, e.weight);
-        } else {
-            this.nodeConnectionsWeight[neighbor].set(to, neighEdgesTo + e.weight);
-        }
-
-        var neighCountEdgesTo = this.nodeConnectionsCount[neighbor].get(to);
-        if (neighCountEdgesTo === undefined) {
-            this.nodeConnectionsCount[neighbor].set(to, 1);
-        } else {
-            this.nodeConnectionsCount[neighbor].set(to, neighCountEdgesTo + 1);
-        }
-
-
-        var /** @type {Community} */ adjCom = this.nodeCommunities[neighbor];
-        var wEdgesto = adjCom.connectionsWeight.get(to);
-        if (wEdgesto === undefined) {
-            adjCom.connectionsWeight.set(to, e.weight);
-        } else {
-            adjCom.connectionsWeight.set(to, wEdgesto + e.weight);
-        }
-
-        var cEdgesto = adjCom.connectionsCount.get(to);
-        if (cEdgesto === undefined) {
-            adjCom.connectionsCount.set(to, 1);
-        } else {
-            adjCom.connectionsCount.set(to, cEdgesto + 1);
-        }
-
-        var nodeEdgesTo = this.nodeConnectionsWeight[node].get(adjCom);
-        if (nodeEdgesTo === undefined) {
-            this.nodeConnectionsWeight[node].set(adjCom, e.weight);
-        } else {
-            this.nodeConnectionsWeight[node].set(adjCom, nodeEdgesTo + e.weight);
-        }
-
-        var nodeCountEdgesTo = this.nodeConnectionsCount[node].get(adjCom);
-        if (nodeCountEdgesTo === undefined) {
-            this.nodeConnectionsCount[node].set(adjCom, 1);
-        } else {
-            this.nodeConnectionsCount[node].set(adjCom, nodeCountEdgesTo + 1);
-        }
-
-        if (to != adjCom) {
-            var comEdgesto = to.connectionsWeight.get(adjCom);
-            if (comEdgesto === undefined) {
-                to.connectionsWeight.set(adjCom, e.weight);
-            } else {
-                to.connectionsWeight.set(adjCom, comEdgesto + e.weight);
-            }
-
-            var comCountEdgesto = to.connectionsCount.get(adjCom);
-            if (comCountEdgesto === undefined) {
-                to.connectionsCount.set(adjCom, 1);
-            } else {
-                to.connectionsCount.set(adjCom, comCountEdgesto + 1);
-            }
-
-        }
-    }
-};
-
-/**
- * @param {Number} node
- * @param {Community} source
- */
-CommunityStructure.prototype.removeNodeFrom = function (node, source) {
-
-    var community = this.nodeCommunities[node];
-
-
-    var nodeTopology = this.topology[node];
-    for (var topologyKey in nodeTopology) {
-
-        //noinspection JSUnfilteredForInLoop
-        var /** @type {ModEdge} */ e = nodeTopology[topologyKey];
-
-        var neighbor = e.target;
-
-        //Remove Node Connection to this community
-        var edgesTo = this.nodeConnectionsWeight[neighbor].get(community);
-        var countEdgesTo = this.nodeConnectionsCount[neighbor].get(community);
-
-        if ((countEdgesTo - 1) == 0) {
-            this.nodeConnectionsWeight[neighbor].delete(community);
-            this.nodeConnectionsCount[neighbor].delete(community);
-        } else {
-            this.nodeConnectionsWeight[neighbor].set(community, edgesTo - e.weight);
-            this.nodeConnectionsCount[neighbor].set(community, countEdgesTo - 1);
-        }
-
-
-        //Remove Adjacency Community's connection to this community
-        var adjCom = this.nodeCommunities[neighbor];
-        var oEdgesto = adjCom.connectionsWeight.get(community);
-        var oCountEdgesto = adjCom.connectionsCount.get(community);
-        if ((oCountEdgesto - 1) == 0) {
-            adjCom.connectionsWeight.delete(community);
-            adjCom.connectionsCount.delete(community);
-        } else {
-            adjCom.connectionsWeight.set(community, oEdgesto - e.weight);
-            adjCom.connectionsCount.set(community, oCountEdgesto - 1);
-        }
-
-        if (node == neighbor) {
-            continue;
-        }
-
-        if (adjCom != community) {
-
-            var comEdgesto = community.connectionsWeight.get(adjCom);
-            var comCountEdgesto = community.connectionsCount.get(adjCom);
-
-            if (comCountEdgesto - 1 == 0) {
-                community.connectionsWeight.delete(adjCom);
-                community.connectionsCount.delete(adjCom);
-            } else {
-                community.connectionsWeight.set(adjCom, comEdgesto - e.weight);
-                community.connectionsCount.set(adjCom, comCountEdgesto - 1);
-            }
-
-        }
-
-        var nodeEdgesTo = this.nodeConnectionsWeight[node].get(adjCom);
-        var nodeCountEdgesTo = this.nodeConnectionsCount[node].get(adjCom);
-
-        if ((nodeCountEdgesTo - 1) == 0) {
-            this.nodeConnectionsWeight[node].delete(adjCom);
-            this.nodeConnectionsCount[node].delete(adjCom);
-        } else {
-            this.nodeConnectionsWeight[node].set(adjCom, nodeEdgesTo - e.weight);
-            this.nodeConnectionsCount[node].set(adjCom, nodeCountEdgesTo - 1);
-        }
-
-    }
-
-    source.remove(node);
-};
-
-/**
- * @param {Number} node
- * @param {Community} to
- */
-CommunityStructure.prototype.moveNodeTo = function (node, to) {
-
-    var source = this.nodeCommunities[node];
-    this.removeNodeFrom(node, source);
-    this.addNodeTo(node, to);
-
-};
-
-
-CommunityStructure.prototype.zoomOut = function () {
-    var realCommunities = this.communities.reduce(function (arr, value) {
-        arr.push(value);
-        return arr;
-    }, []);
-    var M = realCommunities.length; // size
-    var /** @type Array.< Array.<ModEdge> > */ newTopology = new Array(M);
-    var index = 0;
-
-    this.nodeCommunities = new Array(M);
-    this.nodeConnectionsWeight = new Array(M);
-    this.nodeConnectionsCount = new Array(M);
-
-    var /** @type Map.<Number, Community>*/ newInvMap = new Map();
-    realCommunities.forEach(function (com) {
-
-        var weightSum = 0;
-        this.nodeConnectionsWeight[index] = new Map();
-        this.nodeConnectionsCount[index] = new Map();
-        newTopology[index] = [];
-        this.nodeCommunities[index] = new Community(com);
-        //var iter = com.connectionsWeight.keySet();
-
-        var hidden = new Community(this.structure);
-
-        com.nodes.forEach(function (nodeInt) {
-
-            var oldHidden = this.invMap.get(nodeInt);
-            oldHidden.nodes.forEach(hidden.nodes.add.bind(hidden.nodes));
-
-        }, this);
-
-        newInvMap.set(index, hidden);
-        com.connectionsWeight.forEach(function (weight, adjCom) {
-
-            var target = realCommunities.indexOf(adjCom);
-            if (!~target) return;
-            if (target == index) {
-                weightSum += 2. * weight;
-            } else {
-                weightSum += weight;
-            }
-            var e = new ModEdge(index, target, weight);
-            newTopology[index].push(e);
-
-        }, this);
-
-        this.weights[index] = weightSum;
-        this.nodeCommunities[index].seed(index);
-
-        index++;
-
-    }.bind(this));
-
-    this.communities = [];
-
-    for (var i = 0; i < M; i++) {
-        var com = this.nodeCommunities[i];
-        this.communities.push(com);
-        for (var ei in newTopology[i]) {
-            //noinspection JSUnfilteredForInLoop
-            var e = newTopology[i][ei];
-            this.nodeConnectionsWeight[i].set(this.nodeCommunities[e.target], e.weight);
-            this.nodeConnectionsCount[i].set(this.nodeCommunities[e.target], 1);
-            com.connectionsWeight.set(this.nodeCommunities[e.target], e.weight);
-            com.connectionsCount.set(this.nodeCommunities[e.target], 1);
-        }
-
-    }
-
-    this.N = M;
-    this.topology = newTopology;
-    this.invMap = newInvMap;
-
-};
-
-module.exports = CommunityStructure;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-/**
- * @param {CommunityStructure|Community} com
- * @constructor
- */
-function Community(com) {
-
-    /** @type {CommunityStructure} */
-    this.structure = com.structure ? com.structure : com;
-
-    /** @type {Map.<Community, Number>} */
-    this.connectionsWeight = new Map();
-
-    /** @type {Map.<Community, Number>} */
-    this.connectionsCount = new Map();
-
-    /** @type {Set.<Number>} */
-    this.nodes = new Set;
-
-    this.weightSum = 0;
-
-
-}
-
-/**
- * @public
- * @returns {Number}
- */
-Community.prototype.size = function() {
-    return this.nodes.size;
-};
-
-
-/**
- * @param {Number} node
- */
-Community.prototype.seed = function(node) {
-
-    this.nodes.add(node);
-    this.weightSum += this.structure.weights[node];
-
-};
-
-/**
- * @param {Number} nodeId
- * @returns {boolean}
- */
-Community.prototype.add = function(nodeId) {
-
-    this.nodes.add(nodeId);
-    this.weightSum += this.structure.weights[nodeId];
-    return true;
-
-};
-
-/**
- * @param {Number} node
- * @returns {boolean}
- */
-Community.prototype.remove = function(node) {
-
-    var result = this.nodes.delete(node);
-
-    this.weightSum -= this.structure.weights[node];
-    if (!this.nodes.size) {
-        var index = this.structure.communities.indexOf(this);
-        delete this.structure.communities[index];
-    }
-
-    return result;
-};
-
-module.exports = Community;
+/***/ "./node_modules/ngraph.centrality/index.js":
+/*!*************************************************!*\
+  !*** ./node_modules/ngraph.centrality/index.js ***!
+  \*************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports.degree = __webpack_require__(/*! ./src/degree.js */ "./node_modules/ngraph.centrality/src/degree.js");
+module.exports.betweenness = __webpack_require__(/*! ./src/betweenness.js */ "./node_modules/ngraph.centrality/src/betweenness.js");
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports) {
 
-/**
- *
- * @param s
- * @param t
- * @param w
- * @constructor
- */
-function ModEdge(s, t, w) {
-    /** @type {Number} */
-    this.source = s;
-    /** @type {Number} */
-    this.target = t;
-    /** @type {Number} */
-    this.weight = w;
-}
-
-module.exports = ModEdge;
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports.degree = __webpack_require__(7);
-module.exports.betweenness = __webpack_require__(8);
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports) {
-
-module.exports = degree;
-
-/**
- * Calculates graph nodes degree centrality (in/out or both).
- *
- * @see http://en.wikipedia.org/wiki/Centrality#Degree_centrality
- *
- * @param {ngraph.graph} graph object for which we are calculating centrality.
- * @param {string} [kind=both] What kind of degree centrality needs to be calculated:
- *   'in'    - calculate in-degree centrality
- *   'out'   - calculate out-degree centrality
- *   'inout' - (default) generic degree centrality is calculated
- */
-function degree(graph, kind) {
-  var getNodeDegree,
-    sortedDegrees = [],
-    result = Object.create(null),
-    nodeDegree;
-
-  kind = (kind || 'both').toLowerCase();
-  if (kind === 'both' || kind === 'inout') {
-    getNodeDegree = inoutDegreeCalculator;
-  } else if (kind === 'in') {
-    getNodeDegree = inDegreeCalculator;
-  } else if (kind === 'out') {
-    getNodeDegree = outDegreeCalculator;
-  } else {
-    throw new Error('Expected centrality degree kind is: in, out or both');
-  }
-
-  graph.forEachNode(calculateNodeDegree);
-
-  return result;
-
-  function calculateNodeDegree(node) {
-    var links = graph.getLinks(node.id);
-    result[node.id] = getNodeDegree(links, node.id);
-  }
-}
-
-function inDegreeCalculator(links, nodeId) {
-  var total = 0;
-  if (!links) return total;
-
-  for (var i = 0; i < links.length; i += 1) {
-    total += (links[i].toId === nodeId) ? 1 : 0;
-  }
-  return total;
-}
-
-function outDegreeCalculator(links, nodeId) {
-  var total = 0;
-  if (!links) return total;
-
-  for (var i = 0; i < links.length; i += 1) {
-    total += (links[i].fromId === nodeId) ? 1 : 0;
-  }
-  return total;
-}
-
-function inoutDegreeCalculator(links) {
-  if (!links) return 0;
-
-  return links.length;
-}
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports) {
+/***/ "./node_modules/ngraph.centrality/src/betweenness.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/ngraph.centrality/src/betweenness.js ***!
+  \***********************************************************/
+/***/ ((module) => {
 
 module.exports = betweennes;
 
@@ -1104,7 +113,6 @@ function betweennes(graph, oriented) {
 
     while (Q.length) {
       var v = Q.shift();
-      var dedup = Object.create(null);
       S.push(v);
       graph.forEachLinkedNode(v, toId, oriented);
     }
@@ -1143,14 +151,183 @@ function betweennes(graph, oriented) {
 
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
+/***/ "./node_modules/ngraph.centrality/src/degree.js":
+/*!******************************************************!*\
+  !*** ./node_modules/ngraph.centrality/src/degree.js ***!
+  \******************************************************/
+/***/ ((module) => {
+
+module.exports = degree;
+
+/**
+ * Calculates graph nodes degree centrality (in/out or both).
+ *
+ * @see http://en.wikipedia.org/wiki/Centrality#Degree_centrality
+ *
+ * @param {ngraph.graph} graph object for which we are calculating centrality.
+ * @param {string} [kind=both] What kind of degree centrality needs to be calculated:
+ *   'in'    - calculate in-degree centrality
+ *   'out'   - calculate out-degree centrality
+ *   'inout' - (default) generic degree centrality is calculated
+ */
+function degree(graph, kind) {
+  var getNodeDegree;
+  var result = Object.create(null);
+
+  kind = (kind || 'both').toLowerCase();
+  if (kind === 'both' || kind === 'inout') {
+    getNodeDegree = inoutDegreeCalculator;
+  } else if (kind === 'in') {
+    getNodeDegree = inDegreeCalculator;
+  } else if (kind === 'out') {
+    getNodeDegree = outDegreeCalculator;
+  } else {
+    throw new Error('Expected centrality degree kind is: in, out or both');
+  }
+
+  graph.forEachNode(calculateNodeDegree);
+
+  return result;
+
+  function calculateNodeDegree(node) {
+    var links = graph.getLinks(node.id);
+    result[node.id] = getNodeDegree(links, node.id);
+  }
+}
+
+function inDegreeCalculator(links, nodeId) {
+  var total = 0;
+  if (!links) return total;
+
+  for (var i = 0; i < links.length; i += 1) {
+    total += (links[i].toId === nodeId) ? 1 : 0;
+  }
+  return total;
+}
+
+function outDegreeCalculator(links, nodeId) {
+  var total = 0;
+  if (!links) return total;
+
+  for (var i = 0; i < links.length; i += 1) {
+    total += (links[i].fromId === nodeId) ? 1 : 0;
+  }
+  return total;
+}
+
+function inoutDegreeCalculator(links) {
+  if (!links) return 0;
+
+  return links.length;
+}
+
 
 /***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
+
+/***/ "./node_modules/ngraph.events/index.js":
+/*!*********************************************!*\
+  !*** ./node_modules/ngraph.events/index.js ***!
+  \*********************************************/
+/***/ ((module) => {
+
+module.exports = function(subject) {
+  validateSubject(subject);
+
+  var eventsStorage = createEventsStorage(subject);
+  subject.on = eventsStorage.on;
+  subject.off = eventsStorage.off;
+  subject.fire = eventsStorage.fire;
+  return subject;
+};
+
+function createEventsStorage(subject) {
+  // Store all event listeners to this hash. Key is event name, value is array
+  // of callback records.
+  //
+  // A callback record consists of callback function and its optional context:
+  // { 'eventName' => [{callback: function, ctx: object}] }
+  var registeredEvents = Object.create(null);
+
+  return {
+    on: function (eventName, callback, ctx) {
+      if (typeof callback !== 'function') {
+        throw new Error('callback is expected to be a function');
+      }
+      var handlers = registeredEvents[eventName];
+      if (!handlers) {
+        handlers = registeredEvents[eventName] = [];
+      }
+      handlers.push({callback: callback, ctx: ctx});
+
+      return subject;
+    },
+
+    off: function (eventName, callback) {
+      var wantToRemoveAll = (typeof eventName === 'undefined');
+      if (wantToRemoveAll) {
+        // Killing old events storage should be enough in this case:
+        registeredEvents = Object.create(null);
+        return subject;
+      }
+
+      if (registeredEvents[eventName]) {
+        var deleteAllCallbacksForEvent = (typeof callback !== 'function');
+        if (deleteAllCallbacksForEvent) {
+          delete registeredEvents[eventName];
+        } else {
+          var callbacks = registeredEvents[eventName];
+          for (var i = 0; i < callbacks.length; ++i) {
+            if (callbacks[i].callback === callback) {
+              callbacks.splice(i, 1);
+            }
+          }
+        }
+      }
+
+      return subject;
+    },
+
+    fire: function (eventName) {
+      var callbacks = registeredEvents[eventName];
+      if (!callbacks) {
+        return subject;
+      }
+
+      var fireArguments;
+      if (arguments.length > 1) {
+        fireArguments = Array.prototype.splice.call(arguments, 1);
+      }
+      for(var i = 0; i < callbacks.length; ++i) {
+        var callbackInfo = callbacks[i];
+        callbackInfo.callback.apply(callbackInfo.ctx, fireArguments);
+      }
+
+      return subject;
+    }
+  };
+}
+
+function validateSubject(subject) {
+  if (!subject) {
+    throw new Error('Eventify cannot use falsy object as events subject');
+  }
+  var reservedWords = ['on', 'fire', 'off'];
+  for (var i = 0; i < reservedWords.length; ++i) {
+    if (subject.hasOwnProperty(reservedWords[i])) {
+      throw new Error("Subject cannot be eventified, since it already has property '" + reservedWords[i] + "'");
+    }
+  }
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/ngraph.graph/index.js":
+/*!********************************************!*\
+  !*** ./node_modules/ngraph.graph/index.js ***!
+  \********************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /**
  * @fileOverview Contains definition of the core graph object.
@@ -1165,7 +342,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
  */
 module.exports = createGraph;
 
-var eventify = __webpack_require__(11);
+var eventify = __webpack_require__(/*! ngraph.events */ "./node_modules/ngraph.events/index.js");
 
 /**
  * Creates a new graph
@@ -1732,99 +909,938 @@ function makeLinkId(fromId, toId) {
 
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports) {
 
-module.exports = function(subject) {
-  validateSubject(subject);
+/***/ "./node_modules/ngraph.modularity/Community.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/ngraph.modularity/Community.js ***!
+  \*****************************************************/
+/***/ ((module) => {
 
-  var eventsStorage = createEventsStorage(subject);
-  subject.on = eventsStorage.on;
-  subject.off = eventsStorage.off;
-  subject.fire = eventsStorage.fire;
-  return subject;
+/**
+ * @param {CommunityStructure|Community} com
+ * @constructor
+ */
+function Community(com) {
+
+    /** @type {CommunityStructure} */
+    this.structure = com.structure ? com.structure : com;
+
+    /** @type {Map.<Community, Number>} */
+    this.connectionsWeight = new Map();
+
+    /** @type {Map.<Community, Number>} */
+    this.connectionsCount = new Map();
+
+    /** @type {Set.<Number>} */
+    this.nodes = new Set;
+
+    this.weightSum = 0;
+
+
+}
+
+/**
+ * @public
+ * @returns {Number}
+ */
+Community.prototype.size = function() {
+    return this.nodes.size;
 };
 
-function createEventsStorage(subject) {
-  // Store all event listeners to this hash. Key is event name, value is array
-  // of callback records.
-  //
-  // A callback record consists of callback function and its optional context:
-  // { 'eventName' => [{callback: function, ctx: object}] }
-  var registeredEvents = Object.create(null);
 
-  return {
-    on: function (eventName, callback, ctx) {
-      if (typeof callback !== 'function') {
-        throw new Error('callback is expected to be a function');
-      }
-      var handlers = registeredEvents[eventName];
-      if (!handlers) {
-        handlers = registeredEvents[eventName] = [];
-      }
-      handlers.push({callback: callback, ctx: ctx});
+/**
+ * @param {Number} node
+ */
+Community.prototype.seed = function(node) {
 
-      return subject;
-    },
+    this.nodes.add(node);
+    this.weightSum += this.structure.weights[node];
 
-    off: function (eventName, callback) {
-      var wantToRemoveAll = (typeof eventName === 'undefined');
-      if (wantToRemoveAll) {
-        // Killing old events storage should be enough in this case:
-        registeredEvents = Object.create(null);
-        return subject;
-      }
+};
 
-      if (registeredEvents[eventName]) {
-        var deleteAllCallbacksForEvent = (typeof callback !== 'function');
-        if (deleteAllCallbacksForEvent) {
-          delete registeredEvents[eventName];
-        } else {
-          var callbacks = registeredEvents[eventName];
-          for (var i = 0; i < callbacks.length; ++i) {
-            if (callbacks[i].callback === callback) {
-              callbacks.splice(i, 1);
-            }
-          }
+/**
+ * @param {Number} nodeId
+ * @returns {boolean}
+ */
+Community.prototype.add = function(nodeId) {
+
+    this.nodes.add(nodeId);
+    this.weightSum += this.structure.weights[nodeId];
+    return true;
+
+};
+
+/**
+ * @param {Number} node
+ * @returns {boolean}
+ */
+Community.prototype.remove = function(node) {
+
+    var result = this.nodes.delete(node);
+
+    this.weightSum -= this.structure.weights[node];
+    if (!this.nodes.size) {
+        var index = this.structure.communities.indexOf(this);
+        delete this.structure.communities[index];
+    }
+
+    return result;
+};
+
+module.exports = Community;
+
+
+/***/ }),
+
+/***/ "./node_modules/ngraph.modularity/CommunityStructure.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/ngraph.modularity/CommunityStructure.js ***!
+  \**************************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+var Community = __webpack_require__(/*! ./Community */ "./node_modules/ngraph.modularity/Community.js")
+    , ModEdge = __webpack_require__(/*! ./ModEdge */ "./node_modules/ngraph.modularity/ModEdge.js")
+    ;
+
+/**
+ *
+ * @param {IGraph} graph
+ * @param useWeight
+ * @param {CommunityStructure} structure
+ * @constructor
+ */
+function CommunityStructure(graph, useWeight) {
+
+    //this.graph = graph;
+    this.N = graph.getNodesCount();
+    this.graphWeightSum = 0;
+    this.structure = this;
+
+    /** @type {Map.<Number, Community>} */
+    this.invMap = new Map();
+
+    /** @type {Array.< Map.<Community, Number> >} */
+    this.nodeConnectionsWeight = new Array(this.N);
+
+    /** @type {Array.< Map.<Community, Number> >} */
+    this.nodeConnectionsCount = new Array(this.N);
+
+    /** @type {Array.<Community>} */
+    this.nodeCommunities = new Array(this.N);
+
+    /** @type {Map.<Node, Number>} */
+    this.map = new Map();
+
+    /** @type {Array.< Array.<ModEdge> >} */
+    this.topology = new Array(this.N);
+    for (var i = 0; i < this.N; i++) this.topology[i] = [];
+
+    /** @type {Array.<Community>} */
+    this.communities = [];
+
+    /**@type {Array.<Number>} */
+    this.weights = new Array(this.N);
+
+    var index = 0;
+
+    graph.forEachNode(function (node) {
+
+        this.map.set(node.id, index);
+        this.nodeCommunities[index] = new Community(this);
+        this.nodeConnectionsWeight[index] = new Map();
+        this.nodeConnectionsCount[index] = new Map();
+        this.weights[index] = 0;
+        this.nodeCommunities[index].seed(index);
+        var hidden = new Community(this);
+        hidden.nodes.add(index);
+        this.invMap.set(index, hidden);
+        this.communities.push(this.nodeCommunities[index]);
+        index++;
+
+    }.bind(this));
+
+
+    graph.forEachLink(function (link) {
+
+        var node_index = this.map.get(link.fromId)
+            , neighbor_index = this.map.get(link.toId)
+            , weight = 1
+            ;
+
+        if (node_index === neighbor_index) {
+            return;
         }
-      }
 
-      return subject;
-    },
+        if (useWeight) {
+            weight = link.data.weight;
+        }
 
-    fire: function (eventName) {
-      var callbacks = registeredEvents[eventName];
-      if (!callbacks) {
-        return subject;
-      }
+        this.setUpLink(node_index, neighbor_index, weight);
+        this.setUpLink(neighbor_index, node_index, weight);
 
-      var fireArguments;
-      if (arguments.length > 1) {
-        fireArguments = Array.prototype.splice.call(arguments, 1);
-      }
-      for(var i = 0; i < callbacks.length; ++i) {
-        var callbackInfo = callbacks[i];
-        callbackInfo.callback.apply(callbackInfo.ctx, fireArguments);
-      }
 
-      return subject;
-    }
-  };
+    }.bind(this));
+
+
+    this.graphWeightSum /= 2.0;
 }
 
-function validateSubject(subject) {
-  if (!subject) {
-    throw new Error('Eventify cannot use falsy object as events subject');
-  }
-  var reservedWords = ['on', 'fire', 'off'];
-  for (var i = 0; i < reservedWords.length; ++i) {
-    if (subject.hasOwnProperty(reservedWords[i])) {
-      throw new Error("Subject cannot be eventified, since it already has property '" + reservedWords[i] + "'");
+
+CommunityStructure.prototype.setUpLink = function (node_index, neighbor_index, weight) {
+
+    this.weights[node_index] += weight;
+    var /** @type {ModEdge} */ me = new ModEdge(node_index, neighbor_index, weight);
+    this.topology[node_index].push(me);
+    var /** @type {Community} **/ adjCom = this.nodeCommunities[neighbor_index];
+    this.nodeConnectionsWeight[node_index].set(adjCom, weight);
+    this.nodeConnectionsCount[node_index].set(adjCom, 1);
+    this.nodeCommunities[node_index].connectionsWeight.set(adjCom, weight);
+    this.nodeCommunities[node_index].connectionsCount.set(adjCom, 1);
+    this.nodeConnectionsWeight[neighbor_index].set(this.nodeCommunities[node_index], weight);
+    this.nodeConnectionsCount[neighbor_index].set(this.nodeCommunities[node_index], 1);
+    this.nodeCommunities[neighbor_index].connectionsWeight.set(this.nodeCommunities[node_index], weight);
+    this.nodeCommunities[neighbor_index].connectionsCount.set(this.nodeCommunities[node_index], 1);
+    this.graphWeightSum += weight;
+
+};
+
+/**
+ * @param {Number} node
+ * @param {Community} to
+ */
+CommunityStructure.prototype.addNodeTo = function (node, to) {
+
+    to.add(node);
+    this.nodeCommunities[node] = to;
+
+    var nodeTopology = this.topology[node];
+    for (var topologyKey in nodeTopology) {
+
+        //noinspection JSUnfilteredForInLoop
+        var /** @type {ModEdge} */ e = nodeTopology[topologyKey];
+
+        var neighbor = e.target;
+
+
+        //Remove Node Connection to this community
+        var neighEdgesTo = this.nodeConnectionsWeight[neighbor].get(to);
+        if (neighEdgesTo === undefined) {
+            this.nodeConnectionsWeight[neighbor].set(to, e.weight);
+        } else {
+            this.nodeConnectionsWeight[neighbor].set(to, neighEdgesTo + e.weight);
+        }
+
+        var neighCountEdgesTo = this.nodeConnectionsCount[neighbor].get(to);
+        if (neighCountEdgesTo === undefined) {
+            this.nodeConnectionsCount[neighbor].set(to, 1);
+        } else {
+            this.nodeConnectionsCount[neighbor].set(to, neighCountEdgesTo + 1);
+        }
+
+
+        var /** @type {Community} */ adjCom = this.nodeCommunities[neighbor];
+        var wEdgesto = adjCom.connectionsWeight.get(to);
+        if (wEdgesto === undefined) {
+            adjCom.connectionsWeight.set(to, e.weight);
+        } else {
+            adjCom.connectionsWeight.set(to, wEdgesto + e.weight);
+        }
+
+        var cEdgesto = adjCom.connectionsCount.get(to);
+        if (cEdgesto === undefined) {
+            adjCom.connectionsCount.set(to, 1);
+        } else {
+            adjCom.connectionsCount.set(to, cEdgesto + 1);
+        }
+
+        var nodeEdgesTo = this.nodeConnectionsWeight[node].get(adjCom);
+        if (nodeEdgesTo === undefined) {
+            this.nodeConnectionsWeight[node].set(adjCom, e.weight);
+        } else {
+            this.nodeConnectionsWeight[node].set(adjCom, nodeEdgesTo + e.weight);
+        }
+
+        var nodeCountEdgesTo = this.nodeConnectionsCount[node].get(adjCom);
+        if (nodeCountEdgesTo === undefined) {
+            this.nodeConnectionsCount[node].set(adjCom, 1);
+        } else {
+            this.nodeConnectionsCount[node].set(adjCom, nodeCountEdgesTo + 1);
+        }
+
+        if (to != adjCom) {
+            var comEdgesto = to.connectionsWeight.get(adjCom);
+            if (comEdgesto === undefined) {
+                to.connectionsWeight.set(adjCom, e.weight);
+            } else {
+                to.connectionsWeight.set(adjCom, comEdgesto + e.weight);
+            }
+
+            var comCountEdgesto = to.connectionsCount.get(adjCom);
+            if (comCountEdgesto === undefined) {
+                to.connectionsCount.set(adjCom, 1);
+            } else {
+                to.connectionsCount.set(adjCom, comCountEdgesto + 1);
+            }
+
+        }
     }
-  }
+};
+
+/**
+ * @param {Number} node
+ * @param {Community} source
+ */
+CommunityStructure.prototype.removeNodeFrom = function (node, source) {
+
+    var community = this.nodeCommunities[node];
+
+
+    var nodeTopology = this.topology[node];
+    for (var topologyKey in nodeTopology) {
+
+        //noinspection JSUnfilteredForInLoop
+        var /** @type {ModEdge} */ e = nodeTopology[topologyKey];
+
+        var neighbor = e.target;
+
+        //Remove Node Connection to this community
+        var edgesTo = this.nodeConnectionsWeight[neighbor].get(community);
+        var countEdgesTo = this.nodeConnectionsCount[neighbor].get(community);
+
+        if ((countEdgesTo - 1) == 0) {
+            this.nodeConnectionsWeight[neighbor].delete(community);
+            this.nodeConnectionsCount[neighbor].delete(community);
+        } else {
+            this.nodeConnectionsWeight[neighbor].set(community, edgesTo - e.weight);
+            this.nodeConnectionsCount[neighbor].set(community, countEdgesTo - 1);
+        }
+
+
+        //Remove Adjacency Community's connection to this community
+        var adjCom = this.nodeCommunities[neighbor];
+        var oEdgesto = adjCom.connectionsWeight.get(community);
+        var oCountEdgesto = adjCom.connectionsCount.get(community);
+        if ((oCountEdgesto - 1) == 0) {
+            adjCom.connectionsWeight.delete(community);
+            adjCom.connectionsCount.delete(community);
+        } else {
+            adjCom.connectionsWeight.set(community, oEdgesto - e.weight);
+            adjCom.connectionsCount.set(community, oCountEdgesto - 1);
+        }
+
+        if (node == neighbor) {
+            continue;
+        }
+
+        if (adjCom != community) {
+
+            var comEdgesto = community.connectionsWeight.get(adjCom);
+            var comCountEdgesto = community.connectionsCount.get(adjCom);
+
+            if (comCountEdgesto - 1 == 0) {
+                community.connectionsWeight.delete(adjCom);
+                community.connectionsCount.delete(adjCom);
+            } else {
+                community.connectionsWeight.set(adjCom, comEdgesto - e.weight);
+                community.connectionsCount.set(adjCom, comCountEdgesto - 1);
+            }
+
+        }
+
+        var nodeEdgesTo = this.nodeConnectionsWeight[node].get(adjCom);
+        var nodeCountEdgesTo = this.nodeConnectionsCount[node].get(adjCom);
+
+        if ((nodeCountEdgesTo - 1) == 0) {
+            this.nodeConnectionsWeight[node].delete(adjCom);
+            this.nodeConnectionsCount[node].delete(adjCom);
+        } else {
+            this.nodeConnectionsWeight[node].set(adjCom, nodeEdgesTo - e.weight);
+            this.nodeConnectionsCount[node].set(adjCom, nodeCountEdgesTo - 1);
+        }
+
+    }
+
+    source.remove(node);
+};
+
+/**
+ * @param {Number} node
+ * @param {Community} to
+ */
+CommunityStructure.prototype.moveNodeTo = function (node, to) {
+
+    var source = this.nodeCommunities[node];
+    this.removeNodeFrom(node, source);
+    this.addNodeTo(node, to);
+
+};
+
+
+CommunityStructure.prototype.zoomOut = function () {
+    var realCommunities = this.communities.reduce(function (arr, value) {
+        arr.push(value);
+        return arr;
+    }, []);
+    var M = realCommunities.length; // size
+    var /** @type Array.< Array.<ModEdge> > */ newTopology = new Array(M);
+    var index = 0;
+
+    this.nodeCommunities = new Array(M);
+    this.nodeConnectionsWeight = new Array(M);
+    this.nodeConnectionsCount = new Array(M);
+
+    var /** @type Map.<Number, Community>*/ newInvMap = new Map();
+    realCommunities.forEach(function (com) {
+
+        var weightSum = 0;
+        this.nodeConnectionsWeight[index] = new Map();
+        this.nodeConnectionsCount[index] = new Map();
+        newTopology[index] = [];
+        this.nodeCommunities[index] = new Community(com);
+        //var iter = com.connectionsWeight.keySet();
+
+        var hidden = new Community(this.structure);
+
+        com.nodes.forEach(function (nodeInt) {
+
+            var oldHidden = this.invMap.get(nodeInt);
+            oldHidden.nodes.forEach(hidden.nodes.add.bind(hidden.nodes));
+
+        }, this);
+
+        newInvMap.set(index, hidden);
+        com.connectionsWeight.forEach(function (weight, adjCom) {
+
+            var target = realCommunities.indexOf(adjCom);
+            if (!~target) return;
+            if (target == index) {
+                weightSum += 2. * weight;
+            } else {
+                weightSum += weight;
+            }
+            var e = new ModEdge(index, target, weight);
+            newTopology[index].push(e);
+
+        }, this);
+
+        this.weights[index] = weightSum;
+        this.nodeCommunities[index].seed(index);
+
+        index++;
+
+    }.bind(this));
+
+    this.communities = [];
+
+    for (var i = 0; i < M; i++) {
+        var com = this.nodeCommunities[i];
+        this.communities.push(com);
+        for (var ei in newTopology[i]) {
+            //noinspection JSUnfilteredForInLoop
+            var e = newTopology[i][ei];
+            this.nodeConnectionsWeight[i].set(this.nodeCommunities[e.target], e.weight);
+            this.nodeConnectionsCount[i].set(this.nodeCommunities[e.target], 1);
+            com.connectionsWeight.set(this.nodeCommunities[e.target], e.weight);
+            com.connectionsCount.set(this.nodeCommunities[e.target], 1);
+        }
+
+    }
+
+    this.N = M;
+    this.topology = newTopology;
+    this.invMap = newInvMap;
+
+};
+
+module.exports = CommunityStructure;
+
+/***/ }),
+
+/***/ "./node_modules/ngraph.modularity/ModEdge.js":
+/*!***************************************************!*\
+  !*** ./node_modules/ngraph.modularity/ModEdge.js ***!
+  \***************************************************/
+/***/ ((module) => {
+
+/**
+ *
+ * @param s
+ * @param t
+ * @param w
+ * @constructor
+ */
+function ModEdge(s, t, w) {
+    /** @type {Number} */
+    this.source = s;
+    /** @type {Number} */
+    this.target = t;
+    /** @type {Number} */
+    this.weight = w;
 }
 
+module.exports = ModEdge;
+
+
+/***/ }),
+
+/***/ "./node_modules/ngraph.modularity/Modularity.js":
+/*!******************************************************!*\
+  !*** ./node_modules/ngraph.modularity/Modularity.js ***!
+  \******************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+/*
+ Copyright 2008-2011 Gephi
+ Authors : Patick J. McSweeney <pjmcswee@syr.edu>, Sebastien Heymann <seb@gephi.org>
+ Website : http://www.gephi.org
+
+ This file is part of Gephi.
+
+ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+ Copyright 2011 Gephi Consortium. All rights reserved.
+
+ The contents of this file are subject to the terms of either the GNU
+ General Public License Version 3 only ("GPL") or the Common
+ Development and Distribution License("CDDL") (collectively, the
+ "License"). You may not use this file except in compliance with the
+ License. You can obtain a copy of the License at
+ http://gephi.org/about/legal/license-notice/
+ or /cddl-1.0.txt and /gpl-3.0.txt. See the License for the
+ specific language governing permissions and limitations under the
+ License.  When distributing the software, include this License Header
+ Notice in each file and include the License files at
+ /cddl-1.0.txt and /gpl-3.0.txt. If applicable, add the following below the
+ License Header, with the fields enclosed by brackets [] replaced by
+ your own identifying information:
+ "Portions Copyrighted [year] [name of copyright owner]"
+
+ If you wish your version of this file to be governed by only the CDDL
+ or only the GPL Version 3, indicate your decision by adding
+ "[Contributor] elects to include this software in this distribution
+ under the [CDDL or GPL Version 3] license." If you do not indicate a
+ single choice of license, a recipient has the option to distribute
+ your version of this file under either the CDDL, the GPL Version 3 or
+ to extend the choice of license to its licensees as provided above.
+ However, if you add GPL Version 3 code and therefore, elected the GPL
+ Version 3 license, then the option applies only if the new code is
+ made subject to such option by the copyright holder.
+
+ Contributor(s): Thomas Aynaud <taynaud@gmail.com>
+
+ Portions Copyrighted 2011 Gephi Consortium.
+ */
+var CommunityStructure = __webpack_require__(/*! ./CommunityStructure */ "./node_modules/ngraph.modularity/CommunityStructure.js")
+    , centrality = __webpack_require__(/*! ngraph.centrality */ "./node_modules/ngraph.centrality/index.js")
+    ;
+
+/**
+ * @constructor
+ */
+function Modularity (resolution, useWeight) {
+    this.isRandomized = false;
+    this.useWeight = useWeight;
+    this.resolution = resolution || 1.;
+    /**
+     * @type {CommunityStructure}
+     */
+    this.structure = null;
+}
+
+/**
+ * @param {IGraph} graph
+ */
+Modularity.prototype.execute = function (graph/*, AttributeModel attributeModel*/) {
+
+
+    this.structure = new CommunityStructure(graph, this.useWeight);
+
+    var comStructure = new Array(graph.getNodesCount());
+
+    var computedModularityMetrics = this.computeModularity(
+        graph
+        , this.structure
+        , comStructure
+        , this.resolution
+        , this.isRandomized
+        , this.useWeight
+    );
+
+    var result = {};
+    this.structure.map.forEach(function (i, node) {
+        result[node] = comStructure[i];
+    });
+
+    return result;
+
+};
+
+
+/**
+ *
+ * @param {IGraph} graph
+ * @param {CommunityStructure} theStructure
+ * @param {Array.<Number>} comStructure
+ * @param {Number} currentResolution
+ * @param {Boolean} randomized
+ * @param {Boolean} weighted
+ * @returns {Object.<String, Number>}
+ */
+Modularity.prototype.computeModularity = function(graph, theStructure, comStructure,  currentResolution, randomized, weighted) {
+
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    var totalWeight = theStructure.graphWeightSum;
+    var nodeDegrees = theStructure.weights.slice();
+
+
+    var /** @type {Object.<String, Number>} */ results = Object.create(null);
+
+
+    var someChange = true;
+
+    while (someChange) {
+        someChange = false;
+        var localChange = true;
+        while (localChange) {
+            localChange = false;
+            var start = 0;
+            if (randomized) {
+                //start = Math.abs(rand.nextInt()) % theStructure.N;
+                start = getRandomInt(0,theStructure.N);
+            }
+            var step = 0;
+            for (var i = start; step < theStructure.N; i = (i + 1) % theStructure.N) {
+                step++;
+                var bestCommunity = this.updateBestCommunity(theStructure, i, currentResolution);
+                if ((theStructure.nodeCommunities[i] != bestCommunity) && (bestCommunity != null)) {
+                    theStructure.moveNodeTo(i, bestCommunity);
+                    localChange = true;
+                }
+
+            }
+
+            someChange = localChange || someChange;
+
+        }
+
+        if (someChange) {
+            theStructure.zoomOut();
+        }
+    }
+
+    this.fillComStructure(graph, theStructure, comStructure);
+
+    /*
+    //TODO: uncomment when finalQ will be implemented
+    var degreeCount = this.fillDegreeCount(graph, theStructure, comStructure, nodeDegrees, weighted);
+
+
+    var computedModularity = this._finalQ(comStructure, degreeCount, graph, theStructure, totalWeight, 1., weighted);
+    var computedModularityResolution = this._finalQ(comStructure, degreeCount, graph, theStructure, totalWeight, currentResolution, weighted);
+
+    results["modularity"] =  computedModularity;
+    results["modularityResolution"] =  computedModularityResolution;
+    */
+
+    return results;
+};
+
+
+/**
+ * @param {CommunityStructure} theStructure
+ * @param {Number} i
+ * @param {Number} currentResolution
+ * @returns {Community}
+ */
+Modularity.prototype.updateBestCommunity = function(theStructure,  i, currentResolution) {
+    var best = this.q(i, theStructure.nodeCommunities[i], theStructure, currentResolution);
+    var bestCommunity = theStructure.nodeCommunities[i];
+    //var /*Set<Community>*/ iter = theStructure.nodeConnectionsWeight[i].keySet();
+    theStructure.nodeConnectionsWeight[i].forEach(function (_$$val, com) {
+
+        var qValue = this.q(i, com, theStructure, currentResolution);
+        if (qValue > best) {
+            best = qValue;
+            bestCommunity = com;
+        }
+
+    }, this);
+    return bestCommunity;
+};
+
+/**
+ *
+ * @param {IGraph} graph
+ * @param {CommunityStructure} theStructure
+ * @param {Array.<Number>} comStructure
+ * @returns {Array.<Number>}
+ */
+Modularity.prototype.fillComStructure = function(graph, theStructure, comStructure) {
+
+    var count = 0;
+
+    theStructure.communities.forEach(function (com) {
+
+        com.nodes.forEach(function (node) {
+
+            var hidden = theStructure.invMap.get(node);
+            hidden.nodes.forEach( function (nodeInt){
+                comStructure[nodeInt] = count;
+            });
+
+        });
+        count++;
+
+    });
+
+
+    return comStructure;
+};
+
+/**
+ * @param {IGraph} graph
+ * @param {CommunityStructure} theStructure
+ * @param {Array.<Number>} comStructure
+ * @param {Array.<Number>} nodeDegrees
+ * @param {Boolean} weighted
+ * @returns {Array.<Number>}
+ */
+Modularity.prototype.fillDegreeCount = function(graph, theStructure, comStructure, nodeDegrees, weighted) {
+
+    var degreeCount = new Array(theStructure.communities.length);
+    var degreeCentrality = centrality.degree(graph);
+
+    graph.forEachNode(function(node){
+
+        var index = theStructure.map.get(node);
+        if (weighted) {
+            degreeCount[comStructure[index]] += nodeDegrees[index];
+        } else {
+            degreeCount[comStructure[index]] += degreeCentrality[node.id];
+        }
+
+    });
+    return degreeCount;
+
+};
+
+
+/**
+ *
+ * @param {Array.<Number>} struct
+ * @param {Array.<Number>} degrees
+ * @param {IGraph} graph
+ * @param {CommunityStructure} theStructure
+ * @param {Number} totalWeight
+ * @param {Number} usedResolution
+ * @param {Boolean} weighted
+ * @returns {Number}
+ */
+Modularity.prototype._finalQ = function(struct, degrees, graph, theStructure, totalWeight, usedResolution, weighted) {
+
+    //TODO: rewrite for wighted version of algorithm
+    throw new Error("not implemented properly");
+    var  res = 0;
+    var  internal = new Array(degrees.length);
+
+    graph.forEachNode(function(n){
+        var n_index = theStructure.map.get(n);
+
+        graph.forEachLinkedNode(n.id, function(neighbor){
+            if (n == neighbor) {
+                return;
+            }
+            var neigh_index = theStructure.map.get(neighbor);
+            if (struct[neigh_index] == struct[n_index]) {
+                if (weighted) {
+                    //throw new Error("weighted aren't implemented");
+                    //internal[struct[neigh_index]] += graph.getEdge(n, neighbor).getWeight();
+                } else {
+                    internal[struct[neigh_index]]++;
+                }
+            }
+        }.bind(this), false);
+
+    }.bind(this));
+
+    for (var i = 0; i < degrees.length; i++) {
+        internal[i] /= 2.0;
+        res += usedResolution * (internal[i] / totalWeight) - Math.pow(degrees[i] / (2 * totalWeight), 2);//HERE
+    }
+    return res;
+};
+
+
+
+/**
+ *
+ * @param {Number} nodeId
+ * @param {Community} community
+ * @param {CommunityStructure} theStructure
+ * @param {Number} currentResolution
+ * @returns {Number}
+ */
+Modularity.prototype.q = function(nodeId, community, theStructure, currentResolution) {
+
+    var edgesToFloat = theStructure.nodeConnectionsWeight[nodeId].get(community);
+    var edgesTo = 0;
+    if (edgesToFloat != null) {
+        edgesTo = edgesToFloat;
+    }
+    var weightSum = community.weightSum;
+    var nodeWeight = theStructure.weights[nodeId];
+    var qValue = currentResolution * edgesTo - (nodeWeight * weightSum) / (2.0 * theStructure.graphWeightSum);
+    if ((theStructure.nodeCommunities[nodeId] == community) && (theStructure.nodeCommunities[nodeId].size() > 1)) {
+        qValue = currentResolution * edgesTo - (nodeWeight * (weightSum - nodeWeight)) / (2.0 * theStructure.graphWeightSum);
+    }
+    if ((theStructure.nodeCommunities[nodeId] == community) && (theStructure.nodeCommunities[nodeId].size() == 1)) {
+        qValue = 0.;
+    }
+    return qValue;
+
+};
+
+module.exports = Modularity;
+
+/***/ }),
+
+/***/ "./src/main.js":
+/*!*********************!*\
+  !*** ./src/main.js ***!
+  \*********************/
+/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+
+var Modularity = __webpack_require__(/*! ngraph.modularity/Modularity */ "./node_modules/ngraph.modularity/Modularity.js");
+var echarts = __webpack_require__(/*! echarts/lib/echarts */ "echarts/lib/echarts");
+var createNGraph = __webpack_require__(/*! ngraph.graph */ "./node_modules/ngraph.graph/index.js");
+
+function createModularityVisual(chartType) {
+    return function (ecModel, api) {
+        var paletteScope = {};
+        ecModel.eachSeriesByType(chartType, function (seriesModel) {
+            var modularityOpt = seriesModel.get('modularity');
+            if (modularityOpt) {
+                var graph = seriesModel.getGraph();
+                var idIndexMap = {};
+                var ng = createNGraph();
+                graph.data.each(function (idx) {
+                    var node = graph.getNodeByIndex(idx);
+                    idIndexMap[node.id] = idx;
+                    ng.addNode(node.id);
+                    return node.id;
+                });
+                graph.edgeData.each('value', function (val, idx) {
+                    var edge = graph.getEdgeByIndex(idx);
+                    ng.addLink(edge.node1.id, edge.node2.id);
+                    return {
+                        source: edge.node1.id,
+                        target: edge.node2.id,
+                        value: val
+                    };
+                });
+
+                var modularity = new Modularity(seriesModel.get('modularity.resolution') || 1);
+                var result = modularity.execute(ng);
+
+                var communities = {};
+                for (var id in result) {
+                    var comm = result[id];
+                    communities[comm] = communities[comm] || 0;
+                    communities[comm]++;
+                }
+                var communitiesList = Object.keys(communities);
+                if (seriesModel.get('modularity.sort')) {
+                    communitiesList.sort(function (a, b) {
+                        return b - a;
+                    });
+                }
+                var colors = {};
+                communitiesList.forEach(function (comm) {
+                    colors[comm] = seriesModel.getColorFromPalette(comm, paletteScope);
+                });
+
+                for (var id in result) {
+                    var comm = result[id];
+                    var style = graph.data.ensureUniqueItemVisual(idIndexMap[id], 'style');
+                    style.fill = colors[comm];
+                }
+
+                graph.edgeData.each(function (idx) {
+                    var itemModel = graph.edgeData.getItemModel(idx);
+                    var edge = graph.getEdgeByIndex(idx);
+                    var color = itemModel.get('lineStyle.normal.color');
+
+                    switch (color) {
+                        case 'source':
+                            color = edge.node1.getVisual('style').fill;
+                            break;
+                        case 'target':
+                            color = edge.node2.getVisual('style').fill;
+                            break;
+                    }
+
+                    if (color != null) {
+                        edge.data.ensureUniqueItemVisual(idx, 'style').stroke = color;
+                    }
+                });
+            }
+        });
+    };
+}
+
+echarts.registerVisual(echarts.PRIORITY.VISUAL.CHART + 1, createModularityVisual('graph'));
+echarts.registerVisual(echarts.PRIORITY.VISUAL.CHART + 1, createModularityVisual('graphGL'));
+
+/***/ }),
+
+/***/ "echarts/lib/echarts":
+/*!**************************!*\
+  !*** external "echarts" ***!
+  \**************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = __WEBPACK_EXTERNAL_MODULE_echarts_lib_echarts__;
 
 /***/ })
-/******/ ]);
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		if(__webpack_module_cache__[moduleId]) {
+/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	// module exports must be returned from runtime so entry inlining is disabled
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__("./index.js");
+/******/ })()
+;
 });
+//# sourceMappingURL=echarts-graph-modularity.js.map

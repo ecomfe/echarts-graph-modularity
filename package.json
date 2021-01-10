@@ -1,14 +1,26 @@
 {
   "name": "echarts-graph-modularity",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "description": "ECharts graph modularity extension for community detection",
   "main": "index.js",
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "echarts": "^3.6.2",
     "ngraph.graph": "0.0.12",
     "ngraph.modularity": "1.0.5"
+  },
+  "scripts": {
+    "dev": "npx webpack --mode development --watch",
+    "build": "npx webpack --mode development",
+    "release": "npx webpack --mode production && npx webpack --mode development"
+  },
+  "peerDependencies": {
+    "echarts": "^5.0.0"
+  },
+  "devDependencies": {
+    "echarts": "^5.0.0",
+    "webpack": "^5.11.1",
+    "webpack-cli": "^4.3.1"
   },
   "repository": {
     "type": "git",

@@ -18,9 +18,13 @@ npm install echarts-graph-modularity
 ```
 
 ```js
-var echarts = require('echarts');
-require('echarts-graph-modularity');
+import * as echarts from 'echarts';
+import 'echarts-graph-modularity';
 ```
+
+NOTE:
+
+V2.x is for ECharts 5.x
 
 ## Usage
 

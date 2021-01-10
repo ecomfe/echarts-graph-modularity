@@ -49,7 +49,8 @@ function createModularityVisual(chartType) {
 
                 for (var id in result) {
                     var comm = result[id];
-                    graph.data.setItemVisual(idIndexMap[id], 'color', colors[comm]);
+                    var style = graph.data.ensureUniqueItemVisual(idIndexMap[id], 'style');
+                    style.fill = colors[comm];
                 }
 
                 graph.edgeData.each(function (idx) {
@@ -59,15 +60,15 @@ function createModularityVisual(chartType) {
 
                     switch (color) {
                         case 'source':
-                            color = edge.node1.getVisual('color');
+                            color = edge.node1.getVisual('style').fill;
                             break;
                         case 'target':
-                            color = edge.node2.getVisual('color');
+                            color = edge.node2.getVisual('style').fill;
                             break;
                     }
 
                     if (color != null) {
-                        edge.setVisual('color', color);
+                        edge.data.ensureUniqueItemVisual(idx, 'style').stroke = color;
                     }
                 });
             }
