@@ -1,6 +1,6 @@
-var Modularity = require('ngraph.modularity/Modularity');
-var echarts = require('echarts/lib/echarts');
-var createNGraph = require('ngraph.graph');
+import Modularity from 'ngraph.modularity/Modularity';
+import * as echarts from 'echarts/core';
+import createNGraph from 'ngraph.graph';
 
 function createModularityVisual(chartType) {
     return function (ecModel, api) {
@@ -56,7 +56,8 @@ function createModularityVisual(chartType) {
                 graph.edgeData.each(function (idx) {
                     var itemModel = graph.edgeData.getItemModel(idx);
                     var edge = graph.getEdgeByIndex(idx);
-                    var color = itemModel.get('lineStyle.normal.color');
+                    var color = itemModel.get(['lineStyle', 'normal', 'color'])
+                        || itemModel.get(['lineStyle', 'color']);
 
                     switch (color) {
                         case 'source':
@@ -68,7 +69,7 @@ function createModularityVisual(chartType) {
                     }
 
                     if (color != null) {
-                        edge.data.ensureUniqueItemVisual(idx, 'style').stroke = color;
+                        graph.edgeData.ensureUniqueItemVisual(idx, 'style').stroke = color;
                     }
                 });
             }

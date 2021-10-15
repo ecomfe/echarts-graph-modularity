@@ -7,7 +7,7 @@
 		exports["echarts-graph-modularity"] = factory(require("echarts"));
 	else
 		root["echarts-graph-modularity"] = factory(root["echarts"]);
-})(self, function(__WEBPACK_EXTERNAL_MODULE_echarts_lib_echarts__) {
+})(self, function(__WEBPACK_EXTERNAL_MODULE_echarts_core__) {
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -1714,11 +1714,19 @@ module.exports = Modularity;
 /*!*********************!*\
   !*** ./src/main.js ***!
   \*********************/
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-var Modularity = __webpack_require__(/*! ngraph.modularity/Modularity */ "./node_modules/ngraph.modularity/Modularity.js");
-var echarts = __webpack_require__(/*! echarts/lib/echarts */ "echarts/lib/echarts");
-var createNGraph = __webpack_require__(/*! ngraph.graph */ "./node_modules/ngraph.graph/index.js");
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var ngraph_modularity_Modularity__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ngraph.modularity/Modularity */ "./node_modules/ngraph.modularity/Modularity.js");
+/* harmony import */ var ngraph_modularity_Modularity__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(ngraph_modularity_Modularity__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var echarts_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! echarts/core */ "echarts/core");
+/* harmony import */ var echarts_core__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(echarts_core__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var ngraph_graph__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ngraph.graph */ "./node_modules/ngraph.graph/index.js");
+/* harmony import */ var ngraph_graph__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(ngraph_graph__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
 
 function createModularityVisual(chartType) {
     return function (ecModel, api) {
@@ -1728,7 +1736,7 @@ function createModularityVisual(chartType) {
             if (modularityOpt) {
                 var graph = seriesModel.getGraph();
                 var idIndexMap = {};
-                var ng = createNGraph();
+                var ng = ngraph_graph__WEBPACK_IMPORTED_MODULE_2___default()();
                 graph.data.each(function (idx) {
                     var node = graph.getNodeByIndex(idx);
                     idIndexMap[node.id] = idx;
@@ -1745,7 +1753,7 @@ function createModularityVisual(chartType) {
                     };
                 });
 
-                var modularity = new Modularity(seriesModel.get('modularity.resolution') || 1);
+                var modularity = new (ngraph_modularity_Modularity__WEBPACK_IMPORTED_MODULE_0___default())(seriesModel.get('modularity.resolution') || 1);
                 var result = modularity.execute(ng);
 
                 var communities = {};
@@ -1774,7 +1782,8 @@ function createModularityVisual(chartType) {
                 graph.edgeData.each(function (idx) {
                     var itemModel = graph.edgeData.getItemModel(idx);
                     var edge = graph.getEdgeByIndex(idx);
-                    var color = itemModel.get('lineStyle.normal.color');
+                    var color = itemModel.get(['lineStyle', 'normal', 'color'])
+                        || itemModel.get(['lineStyle', 'color']);
 
                     switch (color) {
                         case 'source':
@@ -1786,7 +1795,7 @@ function createModularityVisual(chartType) {
                     }
 
                     if (color != null) {
-                        edge.data.ensureUniqueItemVisual(idx, 'style').stroke = color;
+                        graph.edgeData.ensureUniqueItemVisual(idx, 'style').stroke = color;
                     }
                 });
             }
@@ -1794,19 +1803,19 @@ function createModularityVisual(chartType) {
     };
 }
 
-echarts.registerVisual(echarts.PRIORITY.VISUAL.CHART + 1, createModularityVisual('graph'));
-echarts.registerVisual(echarts.PRIORITY.VISUAL.CHART + 1, createModularityVisual('graphGL'));
+echarts_core__WEBPACK_IMPORTED_MODULE_1__.registerVisual(echarts_core__WEBPACK_IMPORTED_MODULE_1__.PRIORITY.VISUAL.CHART + 1, createModularityVisual('graph'));
+echarts_core__WEBPACK_IMPORTED_MODULE_1__.registerVisual(echarts_core__WEBPACK_IMPORTED_MODULE_1__.PRIORITY.VISUAL.CHART + 1, createModularityVisual('graphGL'));
 
 /***/ }),
 
-/***/ "echarts/lib/echarts":
+/***/ "echarts/core":
 /*!**************************!*\
   !*** external "echarts" ***!
   \**************************/
 /***/ ((module) => {
 
 "use strict";
-module.exports = __WEBPACK_EXTERNAL_MODULE_echarts_lib_echarts__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_echarts_core__;
 
 /***/ })
 
@@ -1818,8 +1827,9 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_echarts_lib_echarts__;
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		if(__webpack_module_cache__[moduleId]) {
-/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
@@ -1836,10 +1846,54 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_echarts_lib_echarts__;
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	// module exports must be returned from runtime so entry inlining is disabled
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+/******/ 	
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__("./index.js");
+/******/ 	// This entry module used 'module' so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__("./index.js");
+/******/ 	
+/******/ 	return __webpack_exports__;
 /******/ })()
 ;
 });

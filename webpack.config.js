@@ -14,7 +14,7 @@ module.exports = (env, options) => {
         },
         devtool: 'source-map',
         externals: {
-            'echarts/lib/echarts': 'echarts'
+            'echarts/core': 'echarts'
         }
     };
 };
