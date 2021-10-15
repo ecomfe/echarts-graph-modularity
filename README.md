@@ -1,4 +1,4 @@
-# graph modularity extension for [Apache ECharts (incubating)](https://github.com/apache/incubator-echarts)
+# graph modularity extension for [Apache ECharts](https://github.com/apache/echarts)
 
 Graph modularity extension will do community detection and partition a graph's vertices in several subsets. Each subset will be assigned a different color.
 
